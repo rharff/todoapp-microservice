@@ -1,0 +1,52 @@
+services:
+  task-db:
+    image: postgres:16
+    container_name: task-db
+    environment:
+      POSTGRES_DB: task_db
+      POSTGRES_USER: task_user
+      POSTGRES_PASSWORD: task_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - task_db_data:/var/lib/postgresql/data
+      - ./services/task-service/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  audit-db:
+    image: postgres:16
+    container_name: audit-db
+    environment:
+      POSTGRES_DB: audit_db
+      POSTGRES_USER: audit_user
+      POSTGRES_PASSWORD: audit_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - audit_db_data:/var/lib/postgresql/data
+      - ./services/audit-service/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  task-service:
+    build: ./services/task-service
+    container_name: task-service
+    environment:
+      DATABASE_URL: postgres://task_user:task_pass@task-db:5432/task_db?sslmode=disable
+      AUDIT_SERVICE_URL: http://audit-service:8081
+    ports:
+      - "8080:8080"
+    depends_on:
+      - task-db
+      - audit-service
+
+  audit-service:
+    build: ./services/audit-service
+    container_name: audit-service
+    environment:
+      DATABASE_URL: postgres://audit_user:audit_pass@audit-db:5432/audit_db?sslmode=disable
+    ports:
+      - "8081:8081"
+    depends_on:
+      - audit-db
+
+volumes:
+  task_db_data:
+  audit_db_data:
