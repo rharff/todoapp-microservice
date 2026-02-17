@@ -1,0 +1,35 @@
+# .gitignore for Go backend service
+
+# Binaries and build output
+/bin/
+/build/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+
+# Test and coverage
+coverage.out
+*.coverprofile
+
+# Dependency directories
+/vendor/
+
+# Runtime environment files
+.env
+.env.local
+.env.*.local
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Tooling cache
+.cache/
+.golangci.yml
